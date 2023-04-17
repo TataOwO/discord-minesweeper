@@ -21,9 +21,9 @@ def addMine(array, size):
     pos = randomPos(size)
     while checkStatus(array, pos): pos = randomPos(size)
     array[pos[0]][pos[1]] = -1
+    array = setNearbyNumbers(array, size, pos)
     return array
 
-# doing recursion because I can
 def generateMines(array, size, num):
     if num == 0: return array
     return generateMines(addMine(array, size), size, num-1)
@@ -49,26 +49,15 @@ def getNearbyPos(size, pos):
         nearby.append((x, y+1))
     return nearby
 
-# calculate what the number of a position should be
-def calcPosNum(array, size, pos):
-    if array[pos[0]][pos[1]] == -1: return -1
-    return len([1 for x in getNearbyPos(size, pos) if array[x[0]][x[1]] == -1])
+def setNearbyNumbers(array, size, pos):
+    for each in getNearbyPos(size, pos):
+        if array[each[0]][each[1]] == -1: continue
+        array[each[0]][each[1]] += 1
+    return array
 
 def generateField(size, mineCount):
     emptyField = np.zeros(size, dtype=int)
     field = generateMines(emptyField, size, mineCount)
-    
-    for x in range(size[0]):
-        for y in range(size[1]):
-            field[x][y] = calcPosNum(field, size, (x, y))
-    # I just realized how unoptimized it is to calculate numbers this way
-    # like I should be calculating numbers right when I create a mine
-    # but whatever. It's not like I want to spend too much effort on this
-    # and also the fact that, normally, without nitro you can't post a message
-    # with over 2000 characters, also I tried generating a 100x100 mine field
-    # the result is around 100KB, but it took less than a second to run, so
-    # I don't even bothered optimizing it lol
-    
     return field
 
 # turn the mine field into a playable minesweeper text on Discord
